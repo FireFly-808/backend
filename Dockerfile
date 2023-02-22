@@ -34,9 +34,13 @@ RUN python -m venv /py && \
 # python -m venv /py
 #   make virtual environment
 # apk add
-#   download postgress 
+#   download postgres client so that django can connect to the db
+# apk add --virtual
+#   groups deps into a virtual dep group ".tmp-build-deps" that contains build-base and following packages
 # rm -rf /tmp && \
 #   removes tmp files that are no longer need
+# apk del .tmp-build-deps
+#   removes the virtual dep group that was used only for installation of psycopg2
 # adduser
 #   adds user into the docker container because it's bad to use the root user
 
