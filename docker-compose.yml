@@ -1,5 +1,3 @@
-#dckr_pat_kT0MQwJc5dDiO3PhC1d55Z88WIw
-
 version: "3.9"
 services:
   app:
