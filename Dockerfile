@@ -19,7 +19,7 @@ EXPOSE 8000
 # run a command when the alpine image is building
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
-    apk add --update --no-cache postgresql-client jpeg-dev && \
+    apk add --update --no-cache postgresql-client jpeg-dev libpng && \
     apk add --update --no-cache --virtual .tmp-build-deps \
     build-base postgresql-dev musl-dev zlib zlib-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
@@ -28,7 +28,12 @@ RUN python -m venv /py && \
     adduser \
     --disabled-password \
     --no-create-home \
-    django-user
+    django-user && \
+    mkdir -p /vol/web/media && \
+    mkdir -p /vol/web/static && \
+    chown -R django-user:django-user /vol && \
+    chmod -R 755 /vol
+
 
 # EXPLANATION OF RUN COMMAND ABOVE
 # python -m venv /py
