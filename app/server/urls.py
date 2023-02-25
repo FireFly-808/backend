@@ -10,7 +10,7 @@ from django.conf.urls import url
 
 from rest_framework.routers import DefaultRouter
 
-from record import views
+from server import views
 
 router = DefaultRouter()
 
@@ -18,7 +18,7 @@ router.register('records', views.ImageRecordViewSet)
 router.register('locations', views.LocationViewSet)
 router.register('hotspots', views.HotspotViewSet)
 
-app_name = 'record'
+app_name = 'server'
 
 urlpatterns = [ 
     path('',include(router.urls)),

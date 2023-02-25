@@ -20,9 +20,11 @@ class Location(models.Model):
     """Location of datapoint"""
     x = models.FloatField()
     y = models.FloatField()
+    path = models.IntegerField(default=-1)
+    # area = 1
 
     def __str__(self):
-        return f"({self.x},{self.y})"
+        return f"({self.x},{self.y}), path:{self.path}"
 
 class ImageRecord(models.Model):
     """Image record taken by drone"""

@@ -15,11 +15,13 @@ class ModelTests(TestCase):
         """Test creation of a location"""
         x = 123.123
         y = 456.456
+        path = 1
         newLoc = models.Location.objects.create(
             x = x,
-            y = y
+            y = y,
+            path = path
         )
-        self.assertEqual(str(newLoc),f"({x},{y})")
+        self.assertEqual(str(newLoc),f"({x},{y}), path:{path}")
 
     def test_create_hotspot(self):
         """Test creation of a hotspot"""

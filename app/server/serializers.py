@@ -18,12 +18,20 @@ class ImageRecordSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
         extra_kwargs = {'image':{'required':'True'}}
 
+# class CustomImageRecordSerializer(serializers.Serializer):
+#     """Serializer for drone api call"""
+#     type = serializers.CharField()
+#     x_coord = serializers.FloatField()
+#     y_coord = serializers.FloatField()
+#     date = serializers.DateTimeField()
+#     image = serializers.ImageField()
+    
 class LocationSerializer(serializers.ModelSerializer):
     """Serializer for Location records"""
 
     class Meta:
         model = Location
-        fields = ['id','x','y']
+        fields = ['id','x','y','path']
         read_only_fields = ['id']
 
 
