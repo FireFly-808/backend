@@ -14,9 +14,9 @@ class ImageRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ImageRecord
-        fields = ['id','type','location','date','image']
+        fields = ['id','location','date','image_ir','image_rgb']
         read_only_fields = ['id']
-        extra_kwargs = {'image':{'required':'True'}}
+        extra_kwargs = {'image_rgb':{'required':'True'},'image_ir':{'required':'True'}}
 
 # class CustomImageRecordSerializer(serializers.Serializer):
 #     """Serializer for drone api call"""
@@ -31,7 +31,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Location
-        fields = ['id','x','y','path']
+        fields = ['id','x','y','path_id']
         read_only_fields = ['id']
 
 
@@ -41,5 +41,13 @@ class HotspotSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hotspot
-        fields = ['id','location','size','status']
+        fields = ['id','record','size','status']
+        read_only_fields = ['id']
+
+class HotspotStatusSerializer(serializers.ModelSerializer):
+    """Serializer for Hotspot records"""
+
+    class Meta:
+        model = Hotspot
+        fields = ['id','status']
         read_only_fields = ['id']

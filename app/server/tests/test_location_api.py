@@ -24,7 +24,8 @@ from server.serializers import (
 )
 
 
-LOCATIONS_URL = reverse('server:location-list')
+LOCATION_URL = reverse('server:location-list')
+GET_LOCS_BY_PATH_URL = reverse('server:get_locations_data_by_path')
 
 class PublicAPITests(TestCase):
     """Test all location actions"""
@@ -32,14 +33,29 @@ class PublicAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
+    def test_get_locations(self):
+        """Test retrieving locations"""
+        Location.objects.create(x=1.1,y=2.2,path_id=1)
+        Location.objects.create(x=3.3,y=4.4,path_id=1)
+        
+        res = self.client.get(LOCATION_URL)
+
+        locs = Location.objects.all()
+        serializer = LocationSerializer(locs,many=True)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
+
+
+
     def test_get_locations_by_path(self):
         """Test retrieving locations from a path"""
-        loc1 = Location.objects.create(x=1.1,y=1.2,path=1)
-        loc2 = Location.objects.create(x=2.1,y=2.2,path=1)
-        loc3 = Location.objects.create(x=351.1,y=5341.2,path=2)
+        loc1 = Location.objects.create(x=1.1,y=1.2,path_id=1)
+        loc2 = Location.objects.create(x=2.1,y=2.2,path_id=1)
+        loc3 = Location.objects.create(x=351.1,y=5341.2,path_id=2)
 
         payload = {'path_id':'1'}
-        res = self.client.get(LOCATIONS_URL,payload)
+        res = self.client.get(LOCATION_URL,payload)
 
         s1 = LocationSerializer(loc1)
         s2 = LocationSerializer(loc2)

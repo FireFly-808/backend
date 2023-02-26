@@ -18,127 +18,96 @@ from core.models import (
     Hotspot
 )
 
-from server import serializers
-
-def create_record(location, type='rgb', date='2000-02-14T18:00:00Z'):
+from server.serializers import (
+    ImageRecordSerializer,
+    LocationSerializer,
+)
+def create_record_no_image(location, date='2000-02-14T18:00:00Z'):
     """Create sample record with location"""
     return ImageRecord.objects.create(
-        type=type,
         location=location,
         date=date,
     )
 
-def create_record_manual(client, type):
+def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:00:00Z'):
     """Create sample record with manual coordinates"""
-    with tempfile.NamedTemporaryFile(suffix='.png') as image_file:
-        img = Image.new('RGB',(10,10))
-        img.save(image_file, format='PNG')
-        image_file.seek(0)
-        payload = {
-            "type": type,
-            "x_coord": 123.123,
-            "y_coord": 456.456,
-            "date": "2023-02-14T18:00:00Z",
-            "image": image_file
-        }
-        res = client.post(ADD_RECORD_URL, payload, format='multipart')
-        return res
+    with tempfile.NamedTemporaryFile(suffix='.png') as image_file_ir:
+        with tempfile.NamedTemporaryFile(suffix='.png') as image_file_rgb:
+            img_ir = Image.new('RGB',(10,10))
+            img_rgb = Image.new('RGB',(10,10))
+            img_ir.save(image_file_ir, format='PNG')
+            img_rgb.save(image_file_rgb, format='PNG')
+            image_file_ir.seek(0)
+            image_file_rgb.seek(0)
+            payload = {
+                "x_coord": x,
+                "y_coord": y,
+                "path_id": path_id,
+                "date": date,
+                "image_ir": image_file_ir,
+                "image_rgb": image_file_rgb
+            }
+            res = client.post(ADD_RECORD_URL, payload, format='multipart')
+            return res
 
-ADD_RECORD_URL = reverse('server:image_record_view')
+ADD_RECORD_URL = reverse('server:add_record')
+GET_LOCS_BY_PATH_URL = reverse('server:get_locations_data_by_path')
+
+
+LOCATION_URL = reverse('server:location-list')
+IMAGERECORD_URL = reverse('server:imagerecord-list')
+HOTSPOT_URL = reverse('server:hotspot-list')
 
 class PublicAPITests(TestCase):
     """Test all record actions"""
 
     def setUp(self):
         self.client = APIClient()
-
-    def test_record_upload_custom(self):
-        """Test creating an new record"""
-        with tempfile.NamedTemporaryFile(suffix='.png') as image_file:
-            img = Image.new('RGB',(10,10))
-            img.save(image_file, format='PNG')
-            image_file.seek(0)
-            payload = {
-                "type": "rgb",
-                "x_coord": 123.123,
-                "y_coord": 456.456,
-                "date": "2023-02-14T18:00:00Z",
-                "image": image_file
-            }
-            res = self.client.post(ADD_RECORD_URL, payload, format='multipart')
-
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertIn('image', res.data)
-
     
-    def test_record_upload_default(self):
-        """Test creating an new record using viewset override"""
-        loc = Location.objects.create(x=1.1,y=2.2)
-
-        url = reverse('server:imagerecord-add-custom-record')
-        with tempfile.NamedTemporaryFile(suffix='.png') as image_file:
-            img = Image.new('RGB',(10,10))
-            img.save(image_file, format='PNG')
-            image_file.seek(0)
-            payload = {
-                "type": "rgb",
-                "x_coord": 1.1,
-                "y_coord": 2.2,
-                "date": "2023-02-14T18:00:00Z",
-                "image": image_file
-            }
-            res = self.client.post(url, payload, format='multipart')
+    def test_record_upload_custom(self):
+        """Test creating an new record using apiview"""
+        res = create_record_custom(self.client, path_id =4)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertIn('image', res.data)
-        recs = ImageRecord.objects.all()
-        serializer = serializers.ImageRecordSerializer(recs,many=True)
-        # check that a location with the same coordinates was not created
-        self.assertEqual(loc.id,serializer.data[0]['location'])
-
-
-    def test_get_locations(self):
-        """Test retrieving locations"""
-        Location.objects.create(x=1.1,y=2.2)
-        Location.objects.create(x=3.3,y=4.4)
-        url = reverse('server:location-list')
-        res = self.client.get(url)
-
-        locs = Location.objects.all()
-        serializer = serializers.LocationSerializer(locs,many=True)
-
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data, serializer.data)
+        self.assertIn('image_ir', res.data)
+        self.assertIn('image_rgb', res.data)
 
     def test_get_records(self):
         """Test retrieving records"""
-        res = create_record_manual(self.client, 'rgb')
-        res = create_record_manual(self.client, 'ir')
+        res = create_record_custom(self.client)
         
-        url = reverse('server:imagerecord-list')
-        res = self.client.get(url)
+        res = self.client.get(IMAGERECORD_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         # print(res.data)
 
         recs = ImageRecord.objects.all()
-        serializer = serializers.ImageRecordSerializer(recs,many=True)
+        serializer = ImageRecordSerializer(recs,many=True)
         # print(serializer.data)
-
         # self.assertEqual(res.data, serializer.data)
 
-    def test_get_record_pair_by_loc_id(self):
-        """Test retrieving a pair of records based on location id"""
-        loc = Location.objects.create(x=1.1,y=2.2)
-        rgb1 = create_record(loc, type='rgb', date='2020-02-14T18:00:00Z')
-        ir1 = create_record(loc, type='ir', date='2020-02-14T18:00:00Z')
-        rgb2 = create_record(loc, type='rgb', date='2021-02-14T18:00:00Z')
-        ir2 = create_record(loc, type='ir', date='2021-02-14T18:00:00Z')
+    def test_get_records_by_path(self):
+        """Test retrieving records by path"""
+        res1 = create_record_custom(self.client, path_id=4, date='2001-02-14T18:00:00Z')
+        res2 = create_record_custom(self.client, path_id=4, x=5.3, date='2026-02-14T18:00:00Z')
+        res3 = create_record_custom(self.client, path_id=2)
 
-        url = reverse('server:imagerecord-get-record-pair')
-        params = {'loc_id':f'{loc.id}'}
-        res = self.client.get(url,params)
+
+        record = ImageRecord.objects.get(id=res2.data['id'])
+        hotspot = Hotspot.objects.create(
+            record = record,
+            size = 654,
+            status = 'hella poor'
+        )
+
+        params = {'path_id':4}
+        res = self.client.get(GET_LOCS_BY_PATH_URL, params)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        # for loc_data in res.data:
+        #     print(loc_data)
+            
+            
 
+        
 
 
