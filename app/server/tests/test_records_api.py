@@ -25,6 +25,9 @@ from server.serializers import (
 def update_status_url(record_id):
     return reverse('server:imagerecord-update-status', args=[record_id])
 
+def send_classification_url(record_id):
+    return reverse('server:imagerecord-send-classification', args=[record_id])
+
 def create_record_no_image(location, date='2000-02-14T18:00:00Z'):
     """Create sample record with location"""
     return ImageRecord.objects.create(
@@ -57,6 +60,7 @@ def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:
 
 ADD_RECORD_URL = reverse('server:add_record')
 GET_LOCS_BY_PATH_URL = reverse('server:get_locations_data_by_path')
+GET_UNCLASSIFIED_RECORDS_URL = reverse('server:imagerecord-get-unclassified-records')
 
 LOCATION_URL = reverse('server:location-list')
 IMAGERECORD_URL = reverse('server:imagerecord-list')
@@ -134,6 +138,49 @@ class PublicAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         record.refresh_from_db()
         self.assertEqual(record.status,old_status)
+
+    def test_get_unclassified_records(self):
+        """Test retrieving all unclassified records"""
+        record1 = create_record_custom(self.client, x=1.0)
+        record2 = create_record_custom(self.client, x=2.0)
+        record3 = create_record_custom(self.client, x=3.0)
+        
+        record2.is_classified = True
+        record2.save()
+
+        valid = {record1.id, record3.id}
+
+        res = self.client.get(GET_UNCLASSIFIED_RECORDS_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        for rec in res.data:
+            self.assertIn(rec['id'], valid)
+            self.assertNotEqual(rec['id'], record2.id)
+
+    def test_sending_classification(self):
+        """Test sending classification of record"""
+        record = create_record_custom(self.client, x=1.0)
+        self.assertEqual(record.is_classified, False)
+        old_is_hotspot = record.is_hotspot
+
+        with tempfile.NamedTemporaryFile(suffix='.png') as image_file_masked:
+            img = Image.new('RGB',(10,10))
+            img.save(image_file_masked, format='PNG')
+            image_file_masked.seek(0)
+            payload = {
+                'is_hotspot' : True,
+                'image_masked':image_file_masked
+            }
+            url = send_classification_url(record.id)
+            res = self.client.post(url, payload, format='multipart')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        record.refresh_from_db()
+        self.assertNotEqual(old_is_hotspot, record.is_hotspot)
+        self.assertEqual(record.is_classified, True)
+
+            
+
+
 
 
         

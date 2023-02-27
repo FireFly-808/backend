@@ -24,5 +24,4 @@ urlpatterns = [
     path('add_record/', views.add_record, name='add_record'),
     path('get_distinct_path_ids/', views.get_distinct_path_ids, name='get_distinct_path_ids'),
     path('get_locations_data_by_path/', views.get_locations_data_by_path, name='get_locations_data_by_path'),
-    # path('update_status/', views.update_status, name='update_status'),
 ]

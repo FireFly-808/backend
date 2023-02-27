@@ -42,7 +42,7 @@ from server import serializers
 @api_view(['GET'])
 def get_distinct_path_ids(request):
     distinct_paths = Location.objects.values_list('path_id', flat=True).distinct()
-    return Response(distinct_paths, status=status.HTTP_200_OK)    
+    return Response(distinct_paths, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @extend_schema(
@@ -150,8 +150,12 @@ class ImageRecordViewSet(viewsets.ModelViewSet):
         """Return the serializer class for request"""
         if self.action == 'update_status':
             return serializers.StatusSerializer
+        elif self.action == 'get_unclassified_records':
+            return serializers.UnclassifiedRecordSerializer
+        elif self.action == 'send_classification':
+            return serializers.NewClassificationSerializer
         
-        return self.serializer_class    
+        return self.serializer_class
 
     @action(methods=['POST'], detail=True, url_path='update_status')
     def update_status(self, request, pk=None):
@@ -165,6 +169,33 @@ class ImageRecordViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(methods=['GET'], detail=False, url_path='get_unclassified_records')
+    def get_unclassified_records(self, request, pk=None):
+        """Retrieve all records where status is unclassified"""
+        records = ImageRecord.objects.filter(is_classified = False)
+
+        serializer = serializers.UnclassifiedRecordSerializer(records, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(methods=['POST'], detail=True, url_path='send_classification')
+    def send_classification(self, request, pk=None):
+        """Update classification of record: update is_hotspot and upload painted image"""
+        record = self.get_object()
+        if record.is_classified:
+            return Response(f"record {record.id} already classified", status=status.HTTP_400_BAD_REQUEST)
+
+        data = request.data
+        data['is_classified'] = True
+
+        serializer = self.get_serializer(record, data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @extend_schema_view(
     list=extend_schema(
