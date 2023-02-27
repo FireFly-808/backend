@@ -28,7 +28,7 @@ password: `password123`
 (Can only be accessed when the server is running)  
 `/api/docs/`  
 <http://127.0.0.1:8000/api/docs/>
-#
+
 ## **API endpoints**
 Insomnia exported file path:
 `/app/backend/Insomnia_*****.json`
