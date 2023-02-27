@@ -15,7 +15,6 @@ from rest_framework.test import APIClient
 from core.models import (
     ImageRecord,
     Location,
-    Hotspot
 )
 
 from server.serializers import (
@@ -48,15 +47,16 @@ def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:
                 "image_rgb": image_file_rgb
             }
             res = client.post(ADD_RECORD_URL, payload, format='multipart')
-            return res
+            assert res.status_code == status.HTTP_201_CREATED
+            record = ImageRecord.objects.get(id=res.data['id'])
+            return record
 
 ADD_RECORD_URL = reverse('server:add_record')
 GET_LOCS_BY_PATH_URL = reverse('server:get_locations_data_by_path')
-
+# UPDATE_STATUS_URL = reverse('server:update_status')
 
 LOCATION_URL = reverse('server:location-list')
 IMAGERECORD_URL = reverse('server:imagerecord-list')
-HOTSPOT_URL = reverse('server:hotspot-list')
 
 class PublicAPITests(TestCase):
     """Test all record actions"""
@@ -66,46 +66,66 @@ class PublicAPITests(TestCase):
     
     def test_record_upload_custom(self):
         """Test creating an new record using apiview"""
-        res = create_record_custom(self.client, path_id =4)
-
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertIn('image_ir', res.data)
-        self.assertIn('image_rgb', res.data)
+        record = create_record_custom(self.client, path_id =4)
 
     def test_get_records(self):
         """Test retrieving records"""
-        res = create_record_custom(self.client)
-        
+        record1 = create_record_custom(self.client)
+        record2 = create_record_custom(self.client, x=123.435)
+
         res = self.client.get(IMAGERECORD_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        # print(res.data)
+        print(res.data)
 
         recs = ImageRecord.objects.all()
-        serializer = ImageRecordSerializer(recs,many=True)
+        print(recs)
+        # serializer = ImageRecordSerializer(recs,many=True)
         # print(serializer.data)
         # self.assertEqual(res.data, serializer.data)
 
     def test_get_records_by_path(self):
         """Test retrieving records by path"""
-        res1 = create_record_custom(self.client, path_id=4, date='2001-02-14T18:00:00Z')
-        res2 = create_record_custom(self.client, path_id=4, x=5.3, date='2026-02-14T18:00:00Z')
-        res3 = create_record_custom(self.client, path_id=2)
-
-
-        record = ImageRecord.objects.get(id=res2.data['id'])
-        hotspot = Hotspot.objects.create(
-            record = record,
-            size = 654,
-            status = 'hella poor'
-        )
+        rec1 = create_record_custom(self.client, path_id=4, date='2001-02-14T18:00:00Z')
+        rec2 = create_record_custom(self.client, path_id=4, x=5.3, date='2026-02-14T18:00:00Z')
+        rec3 = create_record_custom(self.client, path_id=2)
 
         params = {'path_id':4}
         res = self.client.get(GET_LOCS_BY_PATH_URL, params)
-
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        # for loc_data in res.data:
-        #     print(loc_data)
-            
+
+    def test_update_status(self):
+        """Test updating the status of a record"""
+        record = create_record_custom(self.client)
+        loc = Location.objects.all()[0]
+        self.assertEqual(record.location.id, loc.id)
+
+        new_status = 'Dismissed'
+        payload = {
+            'status':new_status
+        }
+        url = reverse('server:imagerecord-update-status', args=[record.id])
+        res = self.client.post(url, payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        record.refresh_from_db()
+        self.assertEqual(record.status,new_status)
+
+    def test_update_invalid_status(self):
+        """Test updating the status of a record with an invalid entry"""
+        record = create_record_custom(self.client)
+        old_status = record.status
+        new_status = 'invalid status'
+        payload = {
+            'status':new_status
+        }
+        url = reverse('server:imagerecord-update-status', args=[record.id])
+        res = self.client.post(url, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        record.refresh_from_db()
+        self.assertEqual(record.status,old_status)
+
+
+        
+
             
 
         

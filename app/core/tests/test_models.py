@@ -57,14 +57,3 @@ class ModelTests(TestCase):
             path_id = path_id
         )
         self.assertEqual(newLoc.x,x)
-
-    def test_create_hotspot(self):
-        """Test creation of a hotspot"""
-        res = create_record_custom(self.client)
-        record_obj = models.ImageRecord.objects.get(id=res.data['id'])
-        hotspot = models.Hotspot.objects.create(
-            record = record_obj,
-            size = 3,
-            status = 'hella bad'
-        )
-        self.assertEqual(hotspot.size,3)

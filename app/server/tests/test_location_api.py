@@ -15,7 +15,6 @@ from rest_framework.test import APIClient
 from core.models import (
     ImageRecord,
     Location,
-    Hotspot
 )
 
 from server.serializers import (

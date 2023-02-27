@@ -26,32 +26,22 @@ class Location(models.Model):
     def __str__(self):
         return f"({self.x},{self.y}), path_id:{self.path_id}"
 
-# class ImageRecord(models.Model):
-#     """Image record taken by drone"""
-#     type = models.CharField(max_length=10, null=True)
-#     location = models.ForeignKey('Location',on_delete=models.CASCADE)
-#     date = models.DateTimeField()
-#     image = models.ImageField(null=True, upload_to=recipe_image_file_path)
-
-#     def __str__(self):
-#         return f'id: {self.id}'
-
 class ImageRecord(models.Model):
+    class Status(models.TextChoices):
+        Viewed = "Viewed"
+        Visited = "Visited"
+        Dismissed = "Dismissed"
+        NotViewed = "Not viewed"
+
     """Image record taken by drone"""
     location = models.ForeignKey('Location',on_delete=models.CASCADE)
     date = models.DateTimeField()
     image_ir = models.ImageField(null=True, upload_to=recipe_image_file_path)
     image_rgb = models.ImageField(null=True, upload_to=recipe_image_file_path)
-
-    def __str__(self):
-        return f'id: {self.id}'
-
-
-class Hotspot(models.Model):
-    """Hotspot determined by the classification script"""
-    record = models.ForeignKey('ImageRecord',on_delete=models.CASCADE)
-    size = models.IntegerField()
-    status = models.CharField(max_length=255)
+    image_masked = models.ImageField(null=True, blank=True, upload_to=recipe_image_file_path)
+    is_hotspot = models.BooleanField(default=False)
+    is_classified = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.NotViewed)
 
     def __str__(self):
         return f'id: {self.id}'
