@@ -1,6 +1,6 @@
 # Backend Server API
 
-## <b> Server commands </b>
+## **Server commands**
 
 ### Start server:
 `cd app/backend/ && docker compose up`
@@ -8,15 +8,24 @@
 ### Shutdown server:
 `cd app/backend/ && docker compose down`
 
-### Django admin credentials 
-username: `admin` \
-password: `password123` 
+### Django admin url
+(Can only be accessed when the server is running)  
+`/admin/`  
+<http://127.0.0.1:8000/admin/>
 
-## <b> API endpoints </b>
+Credentials:  
+username: `admin`  
+password: `password123`  
+
+Note! If these credentials are not working then you need to make a superuser:  
+`docker compose run --rm app sh -c "python manage.py createsuperuser"`  
+and make a new username and password
+#
+## **API endpoints**
 Insomnia exported file path:
 `/app/backend/Insomnia_2023-02-26.json`
 
-<b>Upload record (for drone)</b>\
+**Upload record (for drone)**  
 `/api/server/add_record/`
 ```
 payload = {
@@ -53,15 +62,24 @@ def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:
 ```
 
 
-<b>Get list distinct path id's (for webapp)</b> \
+**Get list distinct path id's (for webapp)**  
 `​/api​/server​/get_distinct_path_ids​/`
 
-<b>Get list of locations for specified path (for webapp)</b> \
+**Get list of locations for specified path (for webapp)**  
 `/api/server/get_locations_data_by_path/?path_id=[INTEGER]`
 
-<b>Update status for a hotspot(for webapp)</b> \
-`/api/server/hotspots/{id}/update-status/` \
-Note: {id} is the hotspot_id from the response of /get_locations_data_by_path/ endpoint
+**Update status for a hotspot(for webapp)**  
+`/api/server/records/{id}/update_status/`  
+payload = {'status':[NEW_STATUS]}  
+Note: {id} is the hotspot_id from the response of /get_locations_data_by_path/ endpoint  
+
+**Swagger documentation**  
+(Can only be accessed when the server is running)  
+`/api/docs/`  
+<http://127.0.0.1:8000/api/docs/>
+
+
+
 
 
 

@@ -21,6 +21,10 @@ from server.serializers import (
     ImageRecordSerializer,
     LocationSerializer,
 )
+
+def update_status_url(record_id):
+    return reverse('server:imagerecord-update-status', args=[record_id])
+
 def create_record_no_image(location, date='2000-02-14T18:00:00Z'):
     """Create sample record with location"""
     return ImageRecord.objects.create(
@@ -53,7 +57,6 @@ def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:
 
 ADD_RECORD_URL = reverse('server:add_record')
 GET_LOCS_BY_PATH_URL = reverse('server:get_locations_data_by_path')
-# UPDATE_STATUS_URL = reverse('server:update_status')
 
 LOCATION_URL = reverse('server:location-list')
 IMAGERECORD_URL = reverse('server:imagerecord-list')
@@ -75,10 +78,8 @@ class PublicAPITests(TestCase):
 
         res = self.client.get(IMAGERECORD_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        print(res.data)
 
-        recs = ImageRecord.objects.all()
-        print(recs)
+        # recs = ImageRecord.objects.all()
         # serializer = ImageRecordSerializer(recs,many=True)
         # print(serializer.data)
         # self.assertEqual(res.data, serializer.data)
@@ -98,12 +99,23 @@ class PublicAPITests(TestCase):
         record = create_record_custom(self.client)
         loc = Location.objects.all()[0]
         self.assertEqual(record.location.id, loc.id)
+        url = update_status_url(record.id)
 
+        # change status to 'Dismissed'
         new_status = 'Dismissed'
         payload = {
             'status':new_status
         }
-        url = reverse('server:imagerecord-update-status', args=[record.id])
+        res = self.client.post(url, payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        record.refresh_from_db()
+        self.assertEqual(record.status,new_status)
+
+        # change status to 'Not viewed'
+        new_status = 'Not viewed'
+        payload = {
+            'status':new_status
+        }
         res = self.client.post(url, payload)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         record.refresh_from_db()
@@ -117,7 +129,7 @@ class PublicAPITests(TestCase):
         payload = {
             'status':new_status
         }
-        url = reverse('server:imagerecord-update-status', args=[record.id])
+        url = update_status_url(record.id)
         res = self.client.post(url, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         record.refresh_from_db()
