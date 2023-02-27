@@ -33,7 +33,12 @@ password: `password123`
 Insomnia exported file path:
 `/app/backend/Insomnia_*****.json`
 
-**Upload record (for drone)**  
+<br>  
+
+### **Drone**
+<br>  
+
+**Upload record**  
 `/api/server/add_record/`
 ```
 payload = {
