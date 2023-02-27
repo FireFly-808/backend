@@ -8,7 +8,7 @@
 ### Shutdown server:
 `cd app/backend/ && docker compose down`
 
-### Django admin url
+### Django admin
 (Can only be accessed when the server is running)  
 `/admin/`  
 <http://127.0.0.1:8000/admin/>
