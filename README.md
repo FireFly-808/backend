@@ -110,6 +110,15 @@ payload = {
 }  
 ```
 
+#
+## **How to open images returned by the server**
+To view an image use:   
+[server name] + [image url]  
+**Example:**  
+<http://127.0.0.1:8000/static/media/uploads/image_records/f7cf6e42-ada3-4b10-bbfc-1971da99649a.png>  
+Server name = `http://127.0.0.1:8000`   
+Image url   = `/static/media/uploads/image_records/f7cf6e42-ada3-4b10-bbfc-1971da99649a.png`   
+
 
 
 
