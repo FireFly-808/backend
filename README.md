@@ -33,8 +33,6 @@ password: `password123`
 Insomnia exported file path:
 `/app/backend/Insomnia_*****.json`
 
-<br>  
-
 ### **Drone**
 <br>  
 
