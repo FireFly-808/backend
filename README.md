@@ -6,11 +6,9 @@
 `cd app/backend/ && docker compose up`
 
 ### Shutdown server:
-`cd app/backend/ && docker compose down`  
+`cd app/backend/ && docker compose down`
 
-<br>  
-
-### **Django admin url**
+### Django admin
 (Can only be accessed when the server is running)  
 `/admin/`  
 <http://127.0.0.1:8000/admin/>
@@ -19,19 +17,13 @@ Credentials:
 username: `admin`  
 password: `password123`  
 
-**Note!** If these credentials are not working then you need to make a superuser:  
+Note! If these credentials are not working then you need to make a superuser:  
 `docker compose run --rm app sh -c "python manage.py createsuperuser"`  
-
-<br>  
-
-### **Swagger documentation**  
-(Can only be accessed when the server is running)  
-`/api/docs/`  
-<http://127.0.0.1:8000/api/docs/>
+and make a new username and password
 #
 ## **API endpoints**
 Insomnia exported file path:
-`/app/backend/Insomnia_*****.json`
+`/app/backend/Insomnia_2023-02-26.json`
 
 **Upload record (for drone)**  
 `/api/server/add_record/`
@@ -68,48 +60,23 @@ def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:
             res = client.post(ADD_RECORD_URL, payload, format='multipart')
             return res
 ```
-#
-### **Webapp**
-<br>
 
-**Get list distinct path id's**  
-`​/api​/server​/get_distinct_path_ids​/`  
-<br>
 
-**Get list of locations for specified path**  
-`/api/server/get_locations_data_by_path/?path_id=[INTEGER]`  
-<br>
+**Get list distinct path id's (for webapp)**  
+`​/api​/server​/get_distinct_path_ids​/`
 
-**Update status for a record**  
+**Get list of locations for specified path (for webapp)**  
+`/api/server/get_locations_data_by_path/?path_id=[INTEGER]`
+
+**Update status for a hotspot(for webapp)**  
 `/api/server/records/{id}/update_status/`  
-```
-payload = {
-    'status':[NEW_STATUS]
-}
-```
-Note: {id} is the record_id from the response of /get_locations_data_by_path/ endpoint  
-<br>
+payload = {'status':[NEW_STATUS]}  
+Note: {id} is the hotspot_id from the response of /get_locations_data_by_path/ endpoint  
 
-#
-### **AI Classifier**
-<br>
-
-**Get unclassified records**  
-`/api/server/records/get_unclassified_records/`  
-<br>
-
-**Send classification for a record**  
-`/api/server/records/{id}/send_classification/`  
-```
-payload = {
-    'is_hotspot': BOOL,
-    'image_masked': image
-}  
-```
-
-
-
-
+**Swagger documentation**  
+(Can only be accessed when the server is running)  
+`/api/docs/`  
+<http://127.0.0.1:8000/api/docs/>
 
 
 
