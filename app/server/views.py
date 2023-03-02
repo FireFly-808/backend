@@ -80,8 +80,8 @@ def get_locations_data_by_path(request):
 
         location_dict = {
             'loc_id' : location.id,
-            'x' : location.x,
-            'y' : location.y,
+            'lat' : location.x,
+            'lng' : location.y,
             'path_id': location.path_id,
             'record_id':record.id,
             'date': record.date,
