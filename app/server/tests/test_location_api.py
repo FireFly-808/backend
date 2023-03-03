@@ -36,8 +36,8 @@ class PublicAPITests(TestCase):
     def test_get_locations(self):
         """Test retrieving locations"""
         path = Path.objects.create(name="toronto")
-        Location.objects.create(x=1.1,y=2.2,path=path)
-        Location.objects.create(x=3.3,y=4.4,path=path)
+        Location.objects.create(lon=1.1,lat=2.2,path=path)
+        Location.objects.create(lon=3.3,lat=4.4,path=path)
         
         res = self.client.get(LOCATION_URL)
 

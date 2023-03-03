@@ -37,7 +37,7 @@ def create_record_no_image(location, date='2000-02-14T18:00:00Z'):
         date=date,
     )
 
-def create_record_custom(client, path = -10, x=1.1, y=2.2, date='2000-02-14T18:00:00Z'):
+def create_record_custom(client, path = -10, lon=1.1, lat=2.2, date='2000-02-14T18:00:00Z'):
     """Create sample record with manual coordinates"""
     if path == -10:
         path = Path.objects.create(name="Vancouver")
@@ -50,8 +50,8 @@ def create_record_custom(client, path = -10, x=1.1, y=2.2, date='2000-02-14T18:0
             image_file_ir.seek(0)
             image_file_rgb.seek(0)
             payload = {
-                "x_coord": x,
-                "y_coord": y,
+                "lon": lon,
+                "lat": lat,
                 "path_id": path.id,
                 "date": date,
                 "image_ir": image_file_ir,
@@ -83,7 +83,7 @@ class PublicAPITests(TestCase):
     def test_get_records(self):
         """Test retrieving records"""
         record1 = create_record_custom(self.client)
-        record2 = create_record_custom(self.client, x=123.435)
+        record2 = create_record_custom(self.client, lon=123.435)
 
         res = self.client.get(IMAGERECORD_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -93,7 +93,7 @@ class PublicAPITests(TestCase):
         path1 = Path.objects.create(name='sanfran')
         path2 = Path.objects.create(name='los angeles')
         rec1 = create_record_custom(self.client, path=path1, date='2001-02-14T18:00:00Z')
-        rec2 = create_record_custom(self.client, path=path1, x=5.3, date='2026-02-14T18:00:00Z')
+        rec2 = create_record_custom(self.client, path=path1, lon=5.3, date='2026-02-14T18:00:00Z')
         rec3 = create_record_custom(self.client, path=path2)
 
         params = {'path_id':path1.id}
@@ -144,9 +144,9 @@ class PublicAPITests(TestCase):
 
     def test_get_unclassified_records(self):
         """Test retrieving all unclassified records"""
-        record1 = create_record_custom(self.client, x=1.0)
-        record2 = create_record_custom(self.client, x=2.0)
-        record3 = create_record_custom(self.client, x=3.0)
+        record1 = create_record_custom(self.client, lon=1.0)
+        record2 = create_record_custom(self.client, lon=2.0)
+        record3 = create_record_custom(self.client, lon=3.0)
         
         record2.is_classified = True
         record2.save()
@@ -161,7 +161,7 @@ class PublicAPITests(TestCase):
 
     def test_sending_classification(self):
         """Test sending classification of record"""
-        record = create_record_custom(self.client, x=1.0)
+        record = create_record_custom(self.client, lon=1.0)
         self.assertEqual(record.is_classified, False)
         old_is_hotspot = record.is_hotspot
 

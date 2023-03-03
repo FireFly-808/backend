@@ -18,12 +18,12 @@ def recipe_image_file_path(instance, filename):
 
 class Location(models.Model):
     """Location of datapoint"""
-    x = models.FloatField()
-    y = models.FloatField()
+    lat = models.FloatField()
+    lon = models.FloatField()
     path = models.ForeignKey('Path',on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"({self.x},{self.y})"
+        return f"({self.lat},{self.lon})"
 
 class ImageRecord(models.Model):
     class Status(models.TextChoices):

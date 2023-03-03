@@ -26,12 +26,12 @@ class ModelTests(TestCase):
 
     def test_create_location(self):
         """Test creation of a location"""
-        x = 123.123
-        y = 456.456
+        lon = 123.123
+        lat = 456.456
         path = models.Path.objects.create(name='toronto')
         newLoc = models.Location.objects.create(
-            x = x,
-            y = y,
+            lat = lat,
+            lon = lon,
             path = path
         )
-        self.assertEqual(newLoc.x,x)
+        self.assertEqual(newLoc.lon,lon)

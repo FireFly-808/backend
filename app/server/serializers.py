@@ -70,7 +70,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Location
-        fields = ['id','x','y','path']
+        fields = ['id','lat','lon','path']
         read_only_fields = ['id']
 
 class PathSerializer(serializers.ModelSerializer):

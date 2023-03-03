@@ -56,6 +56,7 @@ def get_locations_data_by_path(request):
     try:
         path = Path.objects.get(id = path_id)
     except Path.DoesNotExist:
+        print(f'path id doesnt exist {path_id}')
         return Response(f'path id doesnt exist {path_id}',status=status.HTTP_400_BAD_REQUEST)
 
     locations = Location.objects.filter(path=path)
@@ -72,13 +73,14 @@ def get_locations_data_by_path(request):
 
         location_dict = {
             'loc_id' : location.id,
-            'lat' : location.x,
-            'lng' : location.y,
+            'lat' : location.lat,
+            'lng' : location.lon,
             'path_id': path_id,
             'record_id':record.id,
             'date': record.date,
             'ir_image_path': record.image_ir.url,
             'rgb_image_path': record.image_rgb.url,
+            'masked_image_path': record.image_rgb.url if not record.is_hotspot else record.image_masked.url,
             'is_hotspot': record.is_hotspot,
             'status' : record.status,
         }
@@ -94,8 +96,8 @@ def get_locations_data_by_path(request):
 def add_record(request, format='json'):
     """API for adding record"""
     data = request.data
-    x = float(data.pop('x_coord',[])[0])
-    y = float(data.pop('y_coord',[])[0])
+    lat = float(data.pop('lat',[])[0])
+    lon = float(data.pop('lon',[])[0])
     path_id = int(data.pop('path_id',[])[0])
 
     # get path
@@ -105,7 +107,7 @@ def add_record(request, format='json'):
         return Response(f'path id {path_id} doesnt exist. Add path first (POST api/server/paths/).',status=status.HTTP_400_BAD_REQUEST)
     
     # get or create location
-    location_obj, created = Location.objects.get_or_create(x=x,y=y,path=path)
+    location_obj, created = Location.objects.get_or_create(lat=lat,lon=lon,path=path)
     data['location'] = location_obj.id
 
     serializer = serializers.ImageRecordUploadSerializer(data=data)

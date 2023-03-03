@@ -45,8 +45,8 @@ Insomnia exported file path:
 `POST /api/server/add_record/`
 ```
 payload = {
-    "x_coord": x,
-    "y_coord": y,
+    "lon": lon,
+    "lat": lat,
     "path_id": path_id,
     "date": date,
     "image_ir": image_file_ir,
@@ -55,7 +55,7 @@ payload = {
 ```
 Example:
 ```
-def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:00:00Z'):
+def create_record_custom(client, path_id = 3, lon=1.1, lat=2.2, date='2000-02-14T18:00:00Z'):
     """Create sample record with manual coordinates"""
     with tempfile.NamedTemporaryFile(suffix='.png') as image_file_ir:
         with tempfile.NamedTemporaryFile(suffix='.png') as image_file_rgb:
@@ -66,8 +66,8 @@ def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:
             image_file_ir.seek(0)
             image_file_rgb.seek(0)
             payload = {
-                "x_coord": x,
-                "y_coord": y,
+                "lon": lon,
+                "lat": lat,
                 "path_id": path_id,
                 "date": date,
                 "image_ir": image_file_ir,
