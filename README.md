@@ -36,8 +36,13 @@ Insomnia exported file path:
 ### **Drone**
 <br>  
 
+**Register new path**  
+`POST ​/api​/server​/paths/`  
+`payload = {'name' : [NAME OF PATH]}`
+<br>
+
 **Upload record**  
-`/api/server/add_record/`
+`POST /api/server/add_record/`
 ```
 payload = {
     "x_coord": x,
@@ -75,16 +80,16 @@ def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:
 ### **Webapp**
 <br>
 
-**Get list distinct path id's**  
-`​/api​/server​/get_distinct_path_ids​/`  
+**Get list of paths**  
+`GET ​/api​/server​/paths/`  
 <br>
 
 **Get list of locations for specified path**  
-`/api/server/get_locations_data_by_path/?path_id=[INTEGER]`  
+`GET /api/server/get_locations_data_by_path/?path_id=[INTEGER]`  
 <br>
 
 **Update status for a record**  
-`/api/server/records/{id}/update_status/`  
+`POST /api/server/records/{id}/update_status/`  
 ```
 payload = {
     'status':[NEW_STATUS]
@@ -98,11 +103,11 @@ Note: {id} is the record_id from the response of /get_locations_data_by_path/ en
 <br>
 
 **Get unclassified records**  
-`/api/server/records/get_unclassified_records/`  
+`GET /api/server/records/get_unclassified_records/`  
 <br>
 
 **Send classification for a record**  
-`/api/server/records/{id}/send_classification/`  
+`POST /api/server/records/{id}/send_classification/`  
 ```
 payload = {
     'is_hotspot': BOOL,

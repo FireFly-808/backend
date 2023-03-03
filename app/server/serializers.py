@@ -6,6 +6,7 @@ from rest_framework import serializers
 from core.models import (
     ImageRecord,
     Location,
+    Path
 )
 
 class ImageRecordSerializer(serializers.ModelSerializer):
@@ -69,6 +70,13 @@ class LocationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Location
-        fields = ['id','x','y','path_id']
+        fields = ['id','x','y','path']
         read_only_fields = ['id']
 
+class PathSerializer(serializers.ModelSerializer):
+    """Serializer for Paths"""
+
+    class Meta:
+        model = Path
+        fields = ['id','name']
+        read_only_fields = ['id']

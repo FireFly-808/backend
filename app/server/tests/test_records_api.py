@@ -15,11 +15,13 @@ from rest_framework.test import APIClient
 from core.models import (
     ImageRecord,
     Location,
+    Path,
 )
 
 from server.serializers import (
     ImageRecordSerializer,
     LocationSerializer,
+    PathSerializer,
 )
 
 def update_status_url(record_id):
@@ -35,8 +37,10 @@ def create_record_no_image(location, date='2000-02-14T18:00:00Z'):
         date=date,
     )
 
-def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:00:00Z'):
+def create_record_custom(client, path = -10, x=1.1, y=2.2, date='2000-02-14T18:00:00Z'):
     """Create sample record with manual coordinates"""
+    if path == -10:
+        path = Path.objects.create(name="Vancouver")
     with tempfile.NamedTemporaryFile(suffix='.png') as image_file_ir:
         with tempfile.NamedTemporaryFile(suffix='.png') as image_file_rgb:
             img_ir = Image.new('RGB',(10,10))
@@ -48,7 +52,7 @@ def create_record_custom(client, path_id = 3, x=1.1, y=2.2, date='2000-02-14T18:
             payload = {
                 "x_coord": x,
                 "y_coord": y,
-                "path_id": path_id,
+                "path_id": path.id,
                 "date": date,
                 "image_ir": image_file_ir,
                 "image_rgb": image_file_rgb
@@ -64,6 +68,7 @@ GET_UNCLASSIFIED_RECORDS_URL = reverse('server:imagerecord-get-unclassified-reco
 
 LOCATION_URL = reverse('server:location-list')
 IMAGERECORD_URL = reverse('server:imagerecord-list')
+PATH_URL = reverse('server:path-list')
 
 class PublicAPITests(TestCase):
     """Test all record actions"""
@@ -73,7 +78,7 @@ class PublicAPITests(TestCase):
     
     def test_record_upload_custom(self):
         """Test creating an new record using apiview"""
-        record = create_record_custom(self.client, path_id =4)
+        record = create_record_custom(self.client)
 
     def test_get_records(self):
         """Test retrieving records"""
@@ -83,20 +88,18 @@ class PublicAPITests(TestCase):
         res = self.client.get(IMAGERECORD_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        # recs = ImageRecord.objects.all()
-        # serializer = ImageRecordSerializer(recs,many=True)
-        # print(serializer.data)
-        # self.assertEqual(res.data, serializer.data)
-
     def test_get_records_by_path(self):
         """Test retrieving records by path"""
-        rec1 = create_record_custom(self.client, path_id=4, date='2001-02-14T18:00:00Z')
-        rec2 = create_record_custom(self.client, path_id=4, x=5.3, date='2026-02-14T18:00:00Z')
-        rec3 = create_record_custom(self.client, path_id=2)
+        path1 = Path.objects.create(name='sanfran')
+        path2 = Path.objects.create(name='los angeles')
+        rec1 = create_record_custom(self.client, path=path1, date='2001-02-14T18:00:00Z')
+        rec2 = create_record_custom(self.client, path=path1, x=5.3, date='2026-02-14T18:00:00Z')
+        rec3 = create_record_custom(self.client, path=path2)
 
-        params = {'path_id':4}
+        params = {'path_id':path1.id}
         res = self.client.get(GET_LOCS_BY_PATH_URL, params)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data),2)
 
     def test_update_status(self):
         """Test updating the status of a record"""
@@ -178,6 +181,26 @@ class PublicAPITests(TestCase):
         self.assertNotEqual(old_is_hotspot, record.is_hotspot)
         self.assertEqual(record.is_classified, True)
 
+    def test_adding_new_path(self):
+        """Test adding a new path"""
+        cityname = "Toronto"
+        payload = {'name':cityname}
+        res = self.client.post(PATH_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        path = Path.objects.get(name=cityname)
+        self.assertEqual(path.name,cityname)
+
+    def test_get_all_paths(self):
+        """Test retrieving all paths"""
+
+        p1 = Path.objects.create(name="one")
+        p2 = Path.objects.create(name="two")
+        p3 = Path.objects.create(name="three")
+        p4 = Path.objects.create(name="four")
+
+        res = self.client.get(PATH_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 4)
             
 
 

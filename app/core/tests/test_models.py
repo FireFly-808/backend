@@ -18,28 +18,6 @@ from django.urls import reverse
 
 ADD_RECORD_URL = reverse('server:add_record')
 
-
-def create_record_custom(client):
-    """Create sample record with manual coordinates"""
-    with tempfile.NamedTemporaryFile(suffix='.png') as image_file_ir:
-        with tempfile.NamedTemporaryFile(suffix='.png') as image_file_rgb:
-            img_ir = Image.new('RGB',(10,10))
-            img_rgb = Image.new('RGB',(10,10))
-            img_ir.save(image_file_ir, format='PNG')
-            img_rgb.save(image_file_rgb, format='PNG')
-            image_file_ir.seek(0)
-            image_file_rgb.seek(0)
-            payload = {
-                "x_coord": 1.1,
-                "y_coord": 2.2,
-                "path_id": 3,                
-                "date": "2023-02-14T18:00:00Z",
-                "image_ir": image_file_ir,
-                "image_rgb": image_file_rgb
-            }
-            res = client.post(ADD_RECORD_URL, payload, format='multipart')
-            return res
-
 class ModelTests(TestCase):
     """Test models"""
 
@@ -50,10 +28,10 @@ class ModelTests(TestCase):
         """Test creation of a location"""
         x = 123.123
         y = 456.456
-        path_id = 1
+        path = models.Path.objects.create(name='toronto')
         newLoc = models.Location.objects.create(
             x = x,
             y = y,
-            path_id = path_id
+            path = path
         )
         self.assertEqual(newLoc.x,x)

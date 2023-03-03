@@ -20,11 +20,10 @@ class Location(models.Model):
     """Location of datapoint"""
     x = models.FloatField()
     y = models.FloatField()
-    path_id = models.IntegerField(default=-1)
-    # area = 1
+    path = models.ForeignKey('Path',on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"({self.x},{self.y}), path_id:{self.path_id}"
+        return f"({self.x},{self.y})"
 
 class ImageRecord(models.Model):
     class Status(models.TextChoices):
@@ -45,3 +44,10 @@ class ImageRecord(models.Model):
 
     def __str__(self):
         return f'id: {self.id}'
+    
+class Path(models.Model):
+    """Path that drone took to collect data"""
+    name = models.TextField(max_length=30)
+
+    def __str__(self):
+        return f"({self.id}) {self.name}"
