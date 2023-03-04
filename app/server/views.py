@@ -78,9 +78,9 @@ def get_locations_data_by_path(request):
             'path_id': path_id,
             'record_id':record.id,
             'date': record.date,
-            'ir_image_path': record.image_ir.url,
-            'rgb_image_path': record.image_rgb.url,
-            'masked_image_path': record.image_rgb.url if not record.is_hotspot else record.image_masked.url,
+            'ir_image_url': record.image_ir.url,
+            'rgb_image_url': record.image_rgb.url,
+            'masked_image_url': record.image_rgb.url if not record.is_hotspot else record.image_masked.url,
             'is_hotspot': record.is_hotspot,
             'status' : record.status,
         }
@@ -91,11 +91,12 @@ def get_locations_data_by_path(request):
 
 @api_view(['POST'])
 @extend_schema(
-    description='Endpoint to call when uploading record (from drone)',
+    description='Endpoint to call when uploading record',
 )
 def add_record(request, format='json'):
     """API for adding record"""
-    data = request.data
+    data = request.data.copy()
+    # print(data)
     lat = float(data.pop('lat',[])[0])
     lon = float(data.pop('lon',[])[0])
     path_id = int(data.pop('path_id',[])[0])
@@ -104,17 +105,54 @@ def add_record(request, format='json'):
     try:
         path = Path.objects.get(id=path_id)
     except Path.DoesNotExist:
-        return Response(f'path id {path_id} doesnt exist. Add path first (POST api/server/paths/).',status=status.HTTP_400_BAD_REQUEST)
+        print(f'path id {path_id} doesnt exist. Add path first (POST api/server/paths/).')
+        return Response(f'path id {path_id} doesnt exist. Add path first (POST api/server/paths/).',status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     # get or create location
     location_obj, created = Location.objects.get_or_create(lat=lat,lon=lon,path=path)
-    data['location'] = location_obj.id
+    # data['location'] = location_obj.id
+    # print(len())
+    data.update({'location':location_obj.id})
+    print(data)
 
     serializer = serializers.ImageRecordUploadSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@extend_schema(
+    description='Endpoint to call when uploading record (from drone)',
+)
+def add_record_from_drone(request, format='json'):
+    """API for adding record from drone"""
+    data = request.data.copy()
+    # print(data)
+    lat = float(data.pop('lat',[])[0])
+    lon = float(data.pop('lon',[])[0])
+    path_id = int(data.pop('path_id',[])[0])
+
+    # get path
+    try:
+        path = Path.objects.get(id=path_id)
+    except Path.DoesNotExist:
+        print(f'path id {path_id} doesnt exist. Add path first (POST api/server/paths/).')
+        return Response(f'path id {path_id} doesnt exist. Add path first (POST api/server/paths/).',status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    # get or create location
+    location_obj, created = Location.objects.get_or_create(lat=lat,lon=lon,path=path)
+    # data['location'] = location_obj.id
+    # print(len())
+    data.update({'location':location_obj.id})
+    # print(data)
+
+    serializer = serializers.ImageRecordUploadSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
