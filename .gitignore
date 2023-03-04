@@ -8,7 +8,6 @@ FLAME2
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
-__pycache__/
 app/__pycache__/
 app/*/__pycache__/
 app/*/*/__pycache__/
