@@ -8,6 +8,9 @@ ENV PYTHONUNBUFFERED 1
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./app /app
 
+# DEPLOY
+COPY ./scripts /scripts 
+
 # use /app as the dir to run commands in
 WORKDIR /app
 
@@ -21,7 +24,7 @@ RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
     apk add --update --no-cache postgresql-client jpeg-dev libpng && \
     apk add --update --no-cache --virtual .tmp-build-deps \
-    build-base postgresql-dev musl-dev zlib zlib-dev && \
+    build-base postgresql-dev musl-dev zlib zlib-dev linux-headers && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     rm -rf /tmp && \
     apk del .tmp-build-deps && \
@@ -32,8 +35,8 @@ RUN python -m venv /py && \
     mkdir -p /vol/web/media && \
     mkdir -p /vol/web/static && \
     chown -R django-user:django-user /vol && \
-    chmod -R 755 /vol
-
+    chmod -R 755 /vol && \
+    chmod -R +x /scripts
 
 # EXPLANATION OF RUN COMMAND ABOVE
 # python -m venv /py
@@ -50,6 +53,9 @@ RUN python -m venv /py && \
 #   adds user into the docker container because it's bad to use the root user
 
 # update PATH env var, prepends /py/bin to existing PATH variable
-ENV PATH="/py/bin:$PATH"
+ENV PATH="/scripts:/py/bin:$PATH"
 
 USER django-user
+
+# DEPLOY
+CMD ["run.sh"]
