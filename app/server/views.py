@@ -96,7 +96,6 @@ def get_locations_data_by_path(request):
 def add_record(request, format='json'):
     """API for adding record"""
     data = request.data.copy()
-    # print(data)
     lat = float(data.pop('lat',[])[0])
     lon = float(data.pop('lon',[])[0])
     path_id = int(data.pop('path_id',[])[0])
@@ -110,52 +109,13 @@ def add_record(request, format='json'):
     
     # get or create location
     location_obj, created = Location.objects.get_or_create(lat=lat,lon=lon,path=path)
-    # data['location'] = location_obj.id
-    # print(len())
     data.update({'location':location_obj.id})
-    print(data)
 
     serializer = serializers.ImageRecordUploadSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(['POST'])
-@extend_schema(
-    description='Endpoint to call when uploading record (from drone)',
-)
-def add_record_from_drone(request, format='json'):
-    """API for adding record from drone"""
-    data = request.data.copy()
-    # print(data)
-    lat = float(data.pop('lat',[])[0])
-    lon = float(data.pop('lon',[])[0])
-    path_id = int(data.pop('path_id',[])[0])
-
-    # get path
-    try:
-        path = Path.objects.get(id=path_id)
-    except Path.DoesNotExist:
-        print(f'path id {path_id} doesnt exist. Add path first (POST api/server/paths/).')
-        return Response(f'path id {path_id} doesnt exist. Add path first (POST api/server/paths/).',status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-    # get or create location
-    location_obj, created = Location.objects.get_or_create(lat=lat,lon=lon,path=path)
-    # data['location'] = location_obj.id
-    # print(len())
-    data.update({'location':location_obj.id})
-    # print(data)
-
-    serializer = serializers.ImageRecordUploadSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
 
 # ===============================================================================
 #  Viewsets for models
@@ -247,3 +207,15 @@ class PathViewSet(viewsets.ModelViewSet):
     """View for managing path api"""
     serializer_class = serializers.PathSerializer
     queryset = Path.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        path_obj, created = Path.objects.get_or_create(name=serializer.validated_data['name'])
+        if not created:
+            return Response({'id':path_obj.id}, status=status.HTTP_200_OK)
+        
+        serializer.instance = path_obj
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
