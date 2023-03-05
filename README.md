@@ -1,12 +1,16 @@
 # Backend Server API
 
-## **Server commands**
+## Localhost commands
 
 ### Start server:
-`cd app/backend/ && docker compose up`
+```sh
+cd app/backend/ && docker compose up
+```
 
 ### Shutdown server:
-`cd app/backend/ && docker compose down`  
+```sh
+cd app/backend/ && docker compose down
+```
 
 <br>  
 
@@ -20,7 +24,9 @@ username: `admin`
 password: `password123`  
 
 **Note!** If these credentials are not working then you need to make a superuser:  
-`docker compose run --rm app sh -c "python manage.py createsuperuser"`  
+```sh
+docker compose run --rm app sh -c "python manage.py createsuperuser"
+```
 
 <br>  
 
