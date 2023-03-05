@@ -1,6 +1,6 @@
 # Backend Server API
 
-## Localhost commands
+## Server commands
 
 ### Start server:
 ```sh
@@ -19,9 +19,11 @@ cd app/backend/ && docker compose down
 `/admin/`  
 <http://127.0.0.1:8000/admin/>
 
-Credentials:  
-username: `admin`  
-password: `password123`  
+<http://ec2-3-219-240-142.compute-1.amazonaws.com/admin/>
+
+Credentials :  
+username: `fireflyadmin`  
+password: `forscience!`  
 
 **Note!** If these credentials are not working then you need to make a superuser:  
 ```sh
@@ -34,6 +36,8 @@ docker compose run --rm app sh -c "python manage.py createsuperuser"
 (Can only be accessed when the server is running)  
 `/api/docs/`  
 <http://127.0.0.1:8000/api/docs/>
+
+<http://ec2-3-219-240-142.compute-1.amazonaws.com/api/docs/>
 
 ## **API endpoints**
 Insomnia exported file path:
