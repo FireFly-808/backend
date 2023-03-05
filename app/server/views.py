@@ -49,7 +49,7 @@ from server import serializers
 def get_locations_data_by_path(request):
     """API for retrieving location data based on path_id"""
     path_id = int(request.query_params.get('path_id'))
-    print(f"path_id {path_id}")
+
     if not path_id:
         return Response('no path_id provided',status=status.HTTP_400_BAD_REQUEST)
     
@@ -59,9 +59,7 @@ def get_locations_data_by_path(request):
         print(f'path id doesnt exist {path_id}')
         return Response(f'path id doesnt exist {path_id}',status=status.HTTP_400_BAD_REQUEST)
     
-    print("before get locs")
     locations = Location.objects.filter(path=path)
-    print("after get locs")
     response_data = []
     for location in locations:
         # print(ImageRecord.objects.filter(location=location).order_by('-date'))
@@ -69,9 +67,12 @@ def get_locations_data_by_path(request):
         records = ImageRecord.objects.filter(location=location).order_by('-date')
         if not records.exists():
             return Response(f'no records for this location {location}',status=status.HTTP_400_BAD_REQUEST)
-        print("before records[0]")
+
         record = records[0]
-        print("after records[0]")
+
+        masked_image_url = record.image_rgb.url
+        if record.is_hotspot:
+           masked_image_url = record.image_masked.url
 
         location_dict = {
             'loc_id' : location.id,
@@ -82,13 +83,11 @@ def get_locations_data_by_path(request):
             'date': record.date,
             'ir_image_url': record.image_ir.url,
             'rgb_image_url': record.image_rgb.url,
-            'masked_image_url': record.image_rgb.url if not record.is_hotspot else record.image_masked.url,
+            'masked_image_url': masked_image_url,
             'is_hotspot': record.is_hotspot,
             'status' : record.status,
         }
         response_data.append(location_dict)
-
-    print("after for")
 
     return Response(response_data, status=status.HTTP_200_OK)
 
