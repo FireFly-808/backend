@@ -49,7 +49,7 @@ from server import serializers
 def get_locations_data_by_path(request):
     """API for retrieving location data based on path_id"""
     path_id = int(request.query_params.get('path_id'))
-
+    print(f"path_id {path_id}")
     if not path_id:
         return Response('no path_id provided',status=status.HTTP_400_BAD_REQUEST)
     
@@ -58,9 +58,10 @@ def get_locations_data_by_path(request):
     except Path.DoesNotExist:
         print(f'path id doesnt exist {path_id}')
         return Response(f'path id doesnt exist {path_id}',status=status.HTTP_400_BAD_REQUEST)
-
+    
+    print("before get locs")
     locations = Location.objects.filter(path=path)
-
+    print("after get locs")
     response_data = []
     for location in locations:
         # print(ImageRecord.objects.filter(location=location).order_by('-date'))
@@ -68,8 +69,9 @@ def get_locations_data_by_path(request):
         records = ImageRecord.objects.filter(location=location).order_by('-date')
         if not records.exists():
             return Response(f'no records for this location {location}',status=status.HTTP_400_BAD_REQUEST)
-        
+        print("before records[0]")
         record = records[0]
+        print("after records[0]")
 
         location_dict = {
             'loc_id' : location.id,
@@ -85,6 +87,8 @@ def get_locations_data_by_path(request):
             'status' : record.status,
         }
         response_data.append(location_dict)
+
+    print("after for")
 
     return Response(response_data, status=status.HTTP_200_OK)
 
