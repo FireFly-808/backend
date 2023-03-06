@@ -21,9 +21,7 @@ cd app/backend/ && docker compose down
 
 <http://ec2-44-214-38-103.compute-1.amazonaws.com/admin/>
 
-Credentials :  
-username: `fireflyadmin`  
-password: `forscience!`  
+Credentials :  ask daniel
 
 **Note!** If these credentials are not working then you need to make a superuser:  
 ```sh
