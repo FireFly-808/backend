@@ -2,12 +2,12 @@
 
 ## Server commands
 
-### Start server:
+### Start server (local):
 ```sh
 cd app/backend/ && docker compose up
 ```
 
-### Shutdown server:
+### Shutdown server (local):
 ```sh
 cd app/backend/ && docker compose down
 ```
