@@ -159,7 +159,9 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    'firely808.com',
+    '52.20.159.124',
 ]
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
