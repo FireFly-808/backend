@@ -19,7 +19,7 @@ cd app/backend/ && docker compose down
 `/admin/`  
 <http://127.0.0.1:8000/admin/>
 
-<http://ec2-3-219-240-142.compute-1.amazonaws.com/admin/>
+<http://ec2-44-214-38-103.compute-1.amazonaws.com/admin/>
 
 Credentials :  
 username: `fireflyadmin`  
@@ -37,7 +37,7 @@ docker compose run --rm app sh -c "python manage.py createsuperuser"
 `/api/docs/`  
 <http://127.0.0.1:8000/api/docs/>
 
-<http://ec2-3-219-240-142.compute-1.amazonaws.com/api/docs/>
+<http://ec2-44-214-38-103.compute-1.amazonaws.com/api/docs/>
 
 ## **API endpoints**
 Insomnia exported file path:
