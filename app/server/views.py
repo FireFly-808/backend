@@ -64,9 +64,9 @@ def get_locations_data_by_path(request):
     for location in locations:
         # print(ImageRecord.objects.filter(location=location).order_by('-date'))
         # since there is only one record the latest record is the only one for that location
-        records = ImageRecord.objects.filter(location=location).order_by('-date')
+        records = ImageRecord.objects.filter(location=location, is_classified=True).order_by('-date')
         if not records.exists():
-            return Response(f'no records for this location {location}',status=status.HTTP_400_BAD_REQUEST)
+            continue#return Response(f'no records for this location {location}',status=status.HTTP_200_OK)
 
         record = records[0]
 

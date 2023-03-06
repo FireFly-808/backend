@@ -95,11 +95,13 @@ class PublicAPITests(TestCase):
         rec1 = create_record_custom(self.client, path=path1, date='2001-02-14T18:00:00Z')
         rec2 = create_record_custom(self.client, path=path1, lon=5.3, date='2026-02-14T18:00:00Z')
         rec3 = create_record_custom(self.client, path=path2)
+        rec1.is_classified = True
+        rec1.save()
 
         params = {'path_id':path1.id}
         res = self.client.get(GET_LOCS_BY_PATH_URL, params)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data),2)
+        self.assertEqual(len(res.data),1)
 
     def test_update_status(self):
         """Test updating the status of a record"""
