@@ -72,7 +72,8 @@ def get_locations_data_by_path(request):
 
         masked_image_url = record.image_rgb.url
         if record.is_hotspot:
-           masked_image_url = record.image_masked.url
+            if record.image_masked is not None:
+                masked_image_url = record.image_masked.url            
 
         location_dict = {
             'loc_id' : location.id,
@@ -170,7 +171,6 @@ class ImageRecordViewSet(viewsets.ModelViewSet):
 
         data = request.data
         data['is_classified'] = True
-        print(data)
 
         serializer = self.get_serializer(record, data=data)
 
