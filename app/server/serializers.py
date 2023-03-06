@@ -60,7 +60,7 @@ class NewClassificationSerializer(serializers.ModelSerializer):
     """Serializer for Image records"""
     class Meta:
         model = ImageRecord
-        fields = ['id','image_masked','is_classified','is_hotspot']
+        fields = ['id','image_masked','image_ir','is_classified','is_hotspot']
         read_only_fields = ['id']
 
         
