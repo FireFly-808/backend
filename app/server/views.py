@@ -170,6 +170,7 @@ class ImageRecordViewSet(viewsets.ModelViewSet):
 
         data = request.data
         data['is_classified'] = True
+        print(data)
 
         serializer = self.get_serializer(record, data=data)
 
